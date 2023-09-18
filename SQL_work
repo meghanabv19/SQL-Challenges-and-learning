@@ -1,0 +1,1 @@
+Q1: Logic that returns the row with "LabelType" = "Combo" but if that doesn't exist return any other "LableType"
