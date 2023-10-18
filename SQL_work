@@ -1,11 +1,18 @@
 Q1: Logic that returns the row with "LabelType" = "Combo" but if that doesn't exist return any other "LableType"
+
+
+-------------------------------------------------------------------------------------------------------------------------------
 Q2: String
 1. to remove duplicate words from a string (ABC DEF ABC XYZ XYZ => ABC DEF XYZ - first occurrence to be retained)
 2. to remove first and last letter from every word of a string (abcd def xyz pqrs => bc e y qr)
 3. remove vowels from the right until specific length is met (parrot => prrt)  (string and length to be the input of the function)
+
+--------------------------------------------------------------------------------------------------------------------------------
 Q3: field that we need to split into 2 fields.Example: NC,123 -
     Field1: NC
     Field2: 123
+
+-----------------------------------------------------------------------------------------------------------------------------
 Q4: we have huge volume with 26Million records to one of the table. It nearly took 7-8 hrs to process the target in ADM
 A4: ref - https://www.sqlservertutorial.net/sql-server-administration/sql-server-table-partitioning/ for partitioning option
 while this helps with extracting tablebut when it comes to ADM time consumed is mostly about processing where updates for each fields
