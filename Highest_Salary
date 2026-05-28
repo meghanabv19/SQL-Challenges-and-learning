@@ -1,0 +1,47 @@
+Second Highest Salary or return Null
+----------------------------------------------
+using CTE
+O(N log N)
+Memory Usage
+
+Potentially higher because:
+
+ranking operation
+sorting buffers
+temp storage
+
+
+/* Write your T-SQL query statement below */
+WITH HIGHEST_SALARY AS
+(
+SELECT SALARY, DENSE_RANK() OVER (ORDER BY SALARY DESC) AS SL_NO
+FROM EMPLOYEE 
+)
+
+SELECT max(SALARY) AS SecondHighestSalary
+FROM HIGHEST_SALARY
+WHERE SL_NO=2
+
+
+---------------------------------------------------
+O(N)
+
+SELECT MAX(SALARY) AS SecondHighestSalary
+FROM EMPLOYEE 
+WHERE SALARY < (SELECT MAX(SALARY) FROM EMPLOYEE) 
+----------------------------------------------------
+
+
+| Scenario                           | Best Choice      |
+| ---------------------------------- | ---------------- |
+| Find only 2nd highest              | MAX subquery     |
+| Top N rankings                     | DENSE_RANK       |
+| Partitioned rankings               | Window functions |
+| Reporting analytics                | Window functions |
+| Performance-critical simple lookup | MAX              |
+
+
+
+ 
+ 
+ 
