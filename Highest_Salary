@@ -42,6 +42,45 @@ WHERE SALARY < (SELECT MAX(SALARY) FROM EMPLOYEE)
 
 
 
+--------------------------------------------------------
+without using any built-in function (absolutely a waste of time), but just because you can
+
+
+SELECT DISTINCT e1.salary AS SecondHighestSalary
+FROM Employee e1
+WHERE EXISTS (
+    SELECT 1
+    FROM Employee e2
+    WHERE e2.salary > e1.salary
+)
+AND NOT EXISTS (
+    SELECT 1
+    FROM Employee e3
+    WHERE e3.salary > e1.salary
+      AND e3.salary < (
+          SELECT DISTINCT e2.salary
+          FROM Employee e2
+          WHERE e2.salary > e1.salary
+      )
+);
+
+
+--------------------------------------------------
+just without max function 
+
+
+SELECT DISTINCT e1.salary AS SecondHighestSalary
+FROM Employee e1
+WHERE 1 = (
+    SELECT COUNT(DISTINCT e2.salary)
+    FROM Employee e2
+    WHERE e2.salary > e1.salary
+);
+
+
+
+
+
  
  
  
