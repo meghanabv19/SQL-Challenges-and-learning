@@ -1,0 +1,75 @@
+N ( here 3 ) Consecutive Numbers
+
+--------------------------------------------------------
+
+USING CTE and SELF JOIN 
+
+WITH Three_count_Num AS (
+SELECT NUM 
+FROM LOGS 
+GROUP BY 
+HAVING COUNT(*)>=3
+)
+
+SELECT DISTINCT NUM 
+FROM LOGS L1 
+INNER JOIN Three_count_Num TCN 
+ON TCN.NUM = L1.NUM 
+INNER JOIN LOGS L2 
+ON L2.NUM = TCN.NUM 
+AND L1.ID+1 = L2.ID 
+INNER JOIN LOGS L3 
+ON L3.NUM = TCN.NUM 
+AND L1.ID+2 = L3.ID 
+
+
+1. Performance - Here, I have introduced a pre-aggregation step, assuming that this would reduce the candidate values
+But if many survive the filter, then the aggregation cost outweighs the savings. With Window functions, LAG is preferred, which saves multiple self-joins.
+2. How can I conclude that if I only had to use self joins, then using filter is a good idea - 
+ Check the execution plan and row counts after each step. 
+-- SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+
+
+
+Now just the self joins - 
+Even this is not optimal 
+
+
+
+SELECT DISTINCT NUM 
+FROM LOGS L1
+INNER JOIN LOGS L2 
+ON L2.NUM = l1.NUM 
+AND L1.ID+1 = L2.ID 
+INNER JOIN LOGS L3 
+ON L3.NUM = L1.NUM 
+AND L1.ID+2 = L3.ID 
+
+
+
+BEST CASE - LAG FUNCTION
+
+
+WITH THREE_CONSECUTIVE_NUM AS (
+SELECT NUM , 
+LAG(NUM,1) AS PREV1, 
+LAG(NUM, 2) AS PREV2
+FROM LOGS
+)
+
+SELECT DISTINCT NUM
+FROM THREE_CONSECUTIVE_NUM
+WHERE NUM=PRV1
+AND PRV1=PRV2
+
+
+
+
+
+
+
+ 
+
+
+
