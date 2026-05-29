@@ -1,0 +1,57 @@
+Write a solution to find the nth highest distinct salary from the Employee table. If there are less than n distinct salaries, return null.
+
+-----------------------------------------------------------------------
+
+CREATE FUNCTION getNthHighestSalary(@N INT) RETURNS INT AS
+BEGIN
+    RETURN (
+        /* Write your T-SQL query statement below. */
+        SELECT MAX(SALARY) 
+        FROM EMPLOYEE E1
+        WHERE @N-1 =
+        (SELECT COUNT(DISTINCT SALARY)
+        FROM EMPLOYEE E2
+        WHERE E2.SALARY > E1.SALARY
+        )
+
+
+    );
+END
+
+Why isn't it an optimal query?
+
+1. A correlated query is run for every record
+2. O(N²)
+
+
+Optmised version ?
+
+CREATE FUNCTION getNthHighestSalary (@N Int) Returns INT AS
+BEGIN
+RETURN(
+        SELECT MAX(SALARY)  
+        FROM (SELECT SALARY, DENSE_RANK() OVER ( ORDER BY SALARY DESC) RNK
+              FROM EMPLOYEE ) RANKED
+        WHERE RNK=@N
+); 
+END 
+
+
+why this is better? 
+
+1. This subquery creates a temporary result which is run once and this result is used to get the 
+required highest salary 
+
+
+if it was not a function we could have used CTE. CTE and this derived table is no different when it comes to performance. 
+It's only matter of readability. 
+So with cte this is how you write it. 
+
+
+WITH NthHighestSalary AS (
+  SELECT SALARY, DENSE_RANK() OVER (ORDER BY SALARY DESC)  AS RNK
+  FROM EMPLOYEE 
+
+)
+SELECT MAX(SALARY) FROM NthHighestSalary 
+WHERE RNK=3
