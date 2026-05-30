@@ -1,0 +1,41 @@
+Solution to find employees who have the highest salary in each of the departments.
+
+---------------------------------------------------------------
+
+WITH DEPT_HIGHES_SAL AS
+(
+  SELECT DEPARTMENTID, MAX(SALARY) AS HIGHEST_SAL
+  FROM EMPLOYEE
+  GROUP BY DEPARTMENTID
+)
+
+
+SELECT DPT.NAME AS DEPARTMENT, EMP.NAME AS EMPLOYEE, H_SAL.SALARY AS HIGHEST SALARY
+FROM DEPT_HIGHEST_SAL H_SAL
+INNER JOIN EMPLOYEE EMP
+ON H_SAL.HIGHEST_SAL = EMP.SALARY 
+AND H_SAL.DEPARTMENTID = EMP.DEPARTMENTID
+INNER JOIN DEPARTMENT DPT 
+ON DPT.ID = H_SAL.ID
+
+
+This is great performance and readability-wise, but if I need to find the nth highest and the 2nd highest, then I can't
+Implement the same logic, and if I need to modify this logic, it becomes very expensive. 
+
+using window function this could be handled - 
+
+
+  WITH DEPT_HIGHEST_SAL AS
+(SELECT DEPARTMENTID,NAME, SALARY, DENSE_RANK() OVER 
+(PARTITION BY DEPARTMENTID ORDER BY SALARY DESC) AS RNK 
+FROM EMPLOYEE)
+
+SELECT DPT.NAME AS DEPARTMENT, H_SAL.NAME AS EMPLOYEE, H_SAL.SALARY
+FROM DEPT_HIGHEST_SAL H_SAL 
+INNER JOIN DEPARTMENT DPT 
+ON H_SAL.DEPARTMENTID= DPT.ID
+WHERE H_SAL.RNK=1  
+
+
+THIS window function could be modified to get any nth highest or lowest salary 
+
