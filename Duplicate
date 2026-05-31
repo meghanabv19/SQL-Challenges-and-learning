@@ -1,0 +1,23 @@
+Delete duplicate emails with bigger ID 
+
+------------------------
+
+DELETE P1
+FROM PERSON P1 
+INNER JOIN PERSON P2 
+ON P1.EMAIL = P2.EMAIL 
+WHERE P1.ID > P2.ID
+
+
+
+---------------------------
+with row number 
+
+WITH DUP_EMAIL AS(
+SELECT EMAIL, ID ,
+ROW_NUMBER() OVER (PARTITION BY EMAIL ORDER BY ID ASC) RN
+FROM PERSON )
+
+DELETE EMAIL FROM 
+PERSON WHERE RN>1
+
