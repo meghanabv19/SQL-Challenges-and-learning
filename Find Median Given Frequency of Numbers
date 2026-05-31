@@ -1,0 +1,120 @@
+Table: Numbers
+
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| num         | int  |
+| frequency   | int  |
++-------------+------+
+num is the primary key (column with unique values) for this table.
+Each row of this table shows the frequency of a number in the database.
+ 
+
+The median is the value separating the higher half from the lower half of a data sample.
+
+Write a solution to report the median of all the numbers in the database after decompressing the Numbers table. Round the median to one decimal point.
+
+The result format is in the following example.
+
+ 
+
+Example 1:
+
+Input: 
+Numbers table:
++-----+-----------+
+| num | frequency |
++-----+-----------+
+| 0   | 7         |
+| 1   | 1         |
+| 2   | 3         |
+| 3   | 1         |
++-----+-----------+
+Output: 
++--------+
+| median |
++--------+
+| 0.0    |
++--------+
+Explanation: 
+If we decompress the Numbers table, we will get [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3], so the median is (0 + 0) / 2 = 0.
+
+
+
+
+
+----------------------SOLUTION-------------------------
+
+
+WITH BASE AS (
+    SELECT NUM, SUM(FREQUENCY) OVER (ORDER BY NUM) AS RUNNING_FREQ,
+    SUM(FREQUENCY) OVER () AS TOTAL_FREQ
+     FROM NUMBERS
+),
+RUNNING_FREQ AS (
+SELECT NUM, RUNNING_FREQ,TOTAL_FREQ,
+LAG(RUNNING_FREQ,1,0) OVER ( ORDER BY NUM) AS PRV_FREQ
+FROM BASE
+)
+
+SELECT -- NUM, (TOTAL_FREQ/2.0), (TOTAL_FREQ/2.0)+1, PRV_FREQ,RUNNING_FREQ
+ ROUND(AVG(CAST(NUM AS FLOAT)),1) AS MEDIAN
+FROM RUNNING_FREQ
+WHERE 
+CASE WHEN TOTAL_FREQ%2 = 0 THEN 
+(TOTAL_FREQ/2.0)+1 END 
+<= RUNNING_FREQ
+AND  CASE WHEN TOTAL_FREQ%2 = 0 THEN 
+(TOTAL_FREQ/2.0)+1 END  > PRV_FREQ
+
+OR 
+
+ 
+(TOTAL_FREQ/2.0)  <= RUNNING_FREQ
+AND (TOTAL_FREQ/2.0) > PRV_FREQ
+
+
+
+
+ 
+
+
+-------------------------------------------------2-------------------
+
+--Write your T-SQL query statement below
+
+WITH RUNNING_FREQ AS(
+    SELECT NUM, SUM(FREQUENCY) OVER (ORDER BY NUM) AS RUNNI_FREQ 
+    FROM NUMBERS
+),
+MEDIAN_FREQ AS(
+    SELECT CASE WHEN 
+    SUM(FREQUENCY)%2 <> 0 THEN 
+    SUM(FREQUENCY)/2.0 
+    ELSE (SUM(FREQUENCY))/2.0  END AS MEDIAN_FREQ1, 
+    CASE WHEN 
+    SUM(FREQUENCY)%2 = 0 THEN 
+    (SUM(FREQUENCY)+2)/2.0  END AS MEDIAN_FREQ2 
+    FROM NUMBERS
+),
+MEDIAN_SUM AS(
+SELECT  
+CASE WHEN 
+MEDIAN_FREQ1 BETWEEN
+ ISNULL((LAG(RUNNI_FREQ) OVER (ORDER BY NUM)) ,0) AND RUNNI_FREQ 
+THEN NUM END AS MEDIAN1,
+CASE WHEN 
+MEDIAN_FREQ2 BETWEEN
+ ISNULL((LAG(RUNNI_FREQ) OVER (ORDER BY NUM)) ,0) AND RUNNI_FREQ 
+THEN NUM END AS MEDIAN2
+FROM RUNNING_FREQ
+CROSS JOIN MEDIAN_FREQ
+)
+
+ 
+SELECT   
+ROUND(SUM(MEDIAN1)/CAST(COUNT(*)AS FLOAT) ,1) 
+  AS MEDIAN
+FROM MEDIAN_SUM
+WHERE MEDIAN1 IS NOT NULL
+ 
